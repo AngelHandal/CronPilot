@@ -43,3 +43,34 @@ cd CronPilot
 python -m venv env
 source env/bin/activate        # on Windows: .\env\Scripts\activate
 pip install -r requirements.txt
+```
+
+### 2) Run
+```bash
+uvicorn app.main:app --reload
+```
+
+### 3) Usage
+UI (recommended)
+Click Create to add a new cron job:
+Cron Expression: e.g. */1 * * * *
+Command: e.g. echo 'Hello from CronPilot' >> /tmp/cron_test.txt
+Click Deploy to apply all saved jobs to the system crontab.
+
+API
+GET /cronjobs — list current system cron jobs (JSON)
+POST /cronjobs — save a job (JSON body):
+```bash
+{
+  "expression": "0 5 * * 1",
+  "command": "python3 /path/to/script.py"
+}
+```
+POST /cronjobs/deploy — apply saved jobs to system crontab
+Saved jobs are appended to saved_cronjobs.txt. Deploying runs crontab saved_cronjobs.txt.
+
+###Notes & Security
+CronPilot writes to saved_cronjobs.txt and applies it with crontab.
+Make sure commands you deploy are trusted. Cron runs with your user privileges.
+Works on macOS/Linux/WSL. Not applicable to vanilla Windows.
+
