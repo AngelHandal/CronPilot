@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>CronPilot Dashboard</title>
+    <meta http-equiv="Cache-Control" content="no-store" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        code {
+            color: #d63384;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity .6s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="mb-4">🛠️ CronPilot Dashboard</h1>
+
+        {% if message %}
+        <div id="flash" class="alert alert-{{ alert_class }} mb-4">{{ message }}</div>
+        {% endif %}
+
+        {% if jobs %}
+        <table class="table table-bordered table-hover shadow-sm bg-white">
+            <thead class="table-dark">
+                <tr>
+                    <th>Expression</th>
+                    <th>Command</th>
+                    <th>Description</th>
+                    <th>Next Run</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td><code>{{ job.expression }}</code></td>
+                    <td><code>{{ job.command }}</code></td>
+                    <td>{{ job.description }}</td>
+                    <td>{{ job.next_run }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="alert alert-info">No cron jobs found.</div>
+        {% endif %}
+
+        <div class="d-flex justify-content-end gap-2 my-4">
+            <button id="createBtn" class="btn btn-primary" onclick="toggleForm()">➕ Create</button>
+            <form id="deployForm" method="post" action="/deploy-cron">
+                <button type="submit" class="btn btn-success">🚀 Deploy</button>
+            </form>
+        </div>
+
+        <div id="createForm" class="card shadow-sm p-4 bg-white" style="display:none;">
+            <form id="createCronForm" method="post" action="/create-cron">
+                <div class="mb-3">
+                    <label for="expression" class="form-label">Cron Expression</label>
+                    <input type="text" class="form-control" id="expression" name="expression"
+                        placeholder="e.g. */1 * * * *" required>
+                </div>
+                <div class="mb-3">
+                    <label for="command" class="form-label">Command</label>
+                    <input type="text" class="form-control" id="command" name="command"
+                        placeholder="e.g. echo 'Hello' >> /tmp/test.txt" required>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success">Save Cron Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm() {
+            const form = document.getElementById("createForm");
+            form.style.display = form.style.display === "none" ? "block" : "none";
+        }
+
+        // On load: if we came with ?status=..., remove it so refresh won't show the message again.
+        (function stripStatusQueryOnce() {
+            if (window.location.search.includes("status=")) {
+                const url = new URL(window.location.href);
+                url.searchParams.delete("status");
+                window.history.replaceState({}, "", url.pathname + url.hash);
+            }
+        })();
+
+        // Auto-hide the flash message after a few seconds
+        (function autoHideFlash() {
+            const flash = document.getElementById("flash");
+            if (!flash) return;
+            setTimeout(() => flash.classList.add("fade-out"), 3200);
+            setTimeout(() => flash.remove(), 3900);
+        })();
+    </script>
+</body>
+
+</html>
