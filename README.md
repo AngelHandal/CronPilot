@@ -69,7 +69,7 @@ POST /cronjobs — save a job (JSON body):
 POST /cronjobs/deploy — apply saved jobs to system crontab
 Saved jobs are appended to saved_cronjobs.txt. Deploying runs crontab saved_cronjobs.txt.
 
-###Notes & Security
+### Notes & Security
 CronPilot writes to saved_cronjobs.txt and applies it with crontab.
 Make sure commands you deploy are trusted. Cron runs with your user privileges.
 Works on macOS/Linux/WSL. Not applicable to vanilla Windows.
